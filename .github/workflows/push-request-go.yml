@@ -1,0 +1,53 @@
+name: Build and test fibonacci
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  compile_and_test_fibonacci:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "the compile_and_test_fibonacci beign"
+      
+      - name: Set up Go
+        uses: actions/setup-go@v2.1.4
+        with: 
+          go-version: 1.18
+        id: go
+
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Basic build
+        run: |
+          pwd
+          ls -l
+          cd golang
+          go build
+
+      - name: Basic test
+        run: |
+          cd golang
+          go test -run=TestFibonacci
+          go test -run=TestFibonacciEasyOptimized
+          go test -run=TestFibonacciOptimized
+          go test -run=TestFibonacciEasyOptimizedBig
+          go test -run=TestFibonacciOptimizedBig
+
+      - name: Run benchmark tests
+        run: |
+          cd golang
+          go test -bench=.
+
+      - name: test cover
+        run: |
+          cd golang
+          go test -covermode=count -coverprofile=coverage.out
+          go tool cover -html=coverage.out -o=coverage.html
+          cat coverage.html
+          go tool cover -func=coverage.out -o=coverage.func
+          cat coverage.func
+
+      - name: Finish
+        run: echo "the compile_and_test_fibonacci finish"
